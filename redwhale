@@ -1,0 +1,164 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+  then
+    echo "usage: redwhale COMMAND"
+    exit 1;
+fi
+
+clear;
+echo -e "
+                                                                               
+                                                         /&&%                  
+                                                         %&&&%                 
+                                                        /&&&&&&                
+                                                       (&%%%%%%&               
+                                                     ,%&&&&&&&&&*              
+                                                    &&%&&&&&&&&%(              
+                                               ,%&%%%%%&%%%%%%%&.              
+                                      **..*#&&&&&&&&&&&&&&&&&&%%               
+                                    .&&&&%%&&&&&&%%&&&&&&&&&&%#                
+                    #%%%%/           (&&&&&&&&&&&&&&&&&&&&&&&&                 
+                 /&&%%%%&&&            %&&&&&&&&&&&&&&&&&&&&&&%                
+               %&%&%(((((%&%             .%%&%&&&&%&&&&&&&&&&&&&               
+             #&&%(((((((((%&%                        %&&&&&&&&&&&%             
+           ,&&%#((((((((((#&%&                        *&&&&&&&&&&&%,           
+          &&&#((((((((((((((&&%                         %&&&&&&&&%%&%          
+         %%&%#(((((((((((((((%%&.                        %%&&&&&&&&&&&         
+        &%&&&%&&&&((((((((((((%&%%                       ,%&&&&&&&%%&&#        
+       %%&.    *&&&%#((((((((((#&&&,                      %%%%%%&&##%&&*       
+      (&&#        (&&%(((((((((((%&&&,                    *%&&&%&%(((%&&       
+      &&%           (&&%(((((((((((%%%%#                  /&&&&&%(((((%&%      
+     #&&*             &&%%((((#&%%((((%%&%%               &&&&&#((((((%&&      
+     %&&               %&&%((((##(((((((#&&&%&%(        %&&&&#((((((((#%&/     
+     &&&                /%&%((((((((((((((((#%%%&&&&&&&&&%&((((((((((((&&%     
+    .&&#                 /%&%((((((((((((((((((((((###(((((((((((((((((&&%     
+    .%%#                  *&&%(((((((((((((((((((((((((((((((((((((((((&&&     
+     %%%                    &&&((((((((((((((((((((((((((((((((((((((((&&%     
+     &&&                     %&&%((((((((((((((((((((((((((((((((((((((&%*     
+     #&%*                     ,&&&#(((((((((((((((((((((((((((((((((((%&&      
+      %&&                       %%%%#%&%,((((((((((((((((((((#%%#(((((%&#      
+      /&&%                        %&&&&&   .((((((((((((((((((%&%#(((&&%       
+       %%&,                          *&&%    *(((((((((((((((((%&&%(%&&        
+        %&%*    %&                    &&&     /(((((((((((((((((&&%%%&.        
+         %&%#   %%&.                   %&&     (((((((((((((((((#&%&&&&.       
+          #%&&   &&%*                  *%&#     *((((((((((((((((%&&&&&&%%/    
+           .&&&#  %&&(                  (&&#     .(((((((((((((((%&&&&&&&&&    
+             *&&&% ,&&%,       ,%&%      #&&&      ((((((((((((((#&&%&&%%      
+               /%%&&.%%&&       ,&&%(     ,&&&*      (((((((((((((&&&          
+                 .&&%%%&%%&*      #%&&(     %&&&.      ((((((((((((&&%         
+                    *&%&&&&&%%      %&&&%     %&&&#       /((((((((#%&%        
+                       .%%%&&&%&%,    /&&&&/ ,#%&&&%&%*       ..,/(((%%&       
+                             (&&&&%&&&&&&&&&&&%%%/ ,&&%&&&&&&&&&&&%%&&&/                                                 
+
+                                  Redwhale 1.0.0
+             Copyright Salvatore Pizzimento, Federico Fausto Santoro\n\n";
+
+
+
+while true; do
+    case "$1" in
+        -i|--install)
+		echo "[RedWhale] Creating core image..."
+            sudo make build-core
+            break
+            ;;
+
+        -a|--add)
+            case "$2" in
+                controller)
+                echo "[Redwhale] Creating controller node..."
+                sudo make build-controller
+                echo "[Redwhale] Controller node created!"
+                break
+                ;;
+				
+		compute)
+		echo "[Redwhale] Creating compute node..."
+		sudo make build-compute name=$3
+		echo "[Redwhale] Compute-$3 node created!"
+		break
+		;;
+            esac
+            break
+            ;;
+
+	-b|--bash)
+            case "$2" in
+                controller)
+                sudo make bash-controller
+                break
+                ;;
+				
+		compute)
+		sudo make bash-compute name=$3
+		break
+		;;
+            esac
+            break
+            ;; 
+
+	-st|--start)
+            case "$2" in
+                controller)
+		echo "[RedWhale] Starting controller node..."
+                sudo make start-controller
+                break
+                ;;
+				
+		compute)
+		echo "[RedWhale] Starting compute-$3 node..."
+		sudo make start-compute name=$3
+		break
+		;;
+            esac
+            break
+            ;;  
+	
+	-sp|--stop)
+            case "$2" in
+                controller)
+                sudo make stop-controller
+		echo "[RedWhale] Stopped controller node!"
+                break
+                ;;
+				
+		compute)
+		sudo make stop-compute name=$3
+		echo "[RedWhale] Stopped compute-$3 node!"
+		break
+		;;
+            esac
+            break
+            ;;
+
+	-c|--clean)
+	    echo "[RedWhale] Uninstalling infrastructure..."
+            sudo make clean
+            break
+            ;;
+        
+	-l|--list)
+            echo -e "NAME\t\t\tSTATUS"
+            sudo docker ps -a --format '{{.Names}}\t{{.Status}}'
+            break
+            ;;  
+        
+        -h|--help|*)
+            echo -e "
+redwhale COMMAND
+
+\t-i | --install: create core build for redwhale
+\t-a | --add [type node]: create openstack node [controller | compute]
+\t-st | --start [type node]: start openstack node [controller | compute]
+\t-sp | --stop [type node]: stop running openstack node [controller | compute]
+\t-b | --bash [type node]: access into node through bash [controller | compute]
+\t-c | --clean: uninstall redwhale
+\t-l | --list: list redwhale containers 
+\t-h | --help: usage of redwhale
+"
+            break
+            ;;
+        
+    esac
+done
