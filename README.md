@@ -40,7 +40,10 @@ For futher details about RedWhale type:
 ## Reference
 RedWhale is meant to be created to provide an OpenStack infrastructure with Docker containers, but the original idea is from another GitHub user [[6]] 
 
-
+## Requirements
+* Linux distribution (tested on Ubuntu 16.04 LTS)
+* 4 GB of RAM available for the infrastructure
+* Docker (tested on 17.12.0-ce)
 
 [1]: https://docs.openstack.org/nova/latest/
 [2]: https://docs.openstack.org/keystone/latest/
